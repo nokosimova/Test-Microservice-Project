@@ -69,5 +69,5 @@ namespace CommandService.Controllers
             return CreatedAtRoute(nameof(GetCommandForPlatform),
                 new  {platformId = platformId, commandId = commandDto.Id}, commandDto);
         }
-    } 
+    }
 }

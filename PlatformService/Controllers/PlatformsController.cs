@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using PlatformService.AsyncDataServices;
 using PlatformService.Data;
 using PlatformService.DTOs;
 using PlatformService.Models;
@@ -14,14 +15,17 @@ namespace PlatformService.Controllers
         private readonly IPlatformRepository _repository;
         private readonly IMapper _mapper;
         private readonly ICommandDataClient _commandDataClient;
+        private readonly IMessageBusClient _messageBus;
 
         public PlatformsController(IPlatformRepository repository, 
                                     IMapper mapper,
-                                    ICommandDataClient commandDataClient)
+                                    ICommandDataClient commandDataClient,
+                                    IMessageBusClient messageBusClient)
         {
             _repository = repository;
             _mapper = mapper;
             _commandDataClient = commandDataClient;
+            _messageBus = messageBusClient;
         }
 
         [HttpGet]
@@ -66,6 +70,18 @@ namespace PlatformService.Controllers
             catch(Exception ex)
             {
                 Console.WriteLine($"--> Could not send synchroniosly: {ex.Message}");
+            }
+
+            //Send async message
+            try
+            {
+                var plarformPublishedDto = _mapper.Map<PlatformPublishedDto>(resultDto);
+                plarformPublishedDto.Event = "Platform_Published";
+                _messageBus.PublishNewPlatform(plarformPublishedDto);
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine($"--> Could not send asynchroniosly: {ex.Message}");
             }
 
             return CreatedAtRoute(nameof(GetPlatform), new { id = resultDto.Id }, resultDto);
