@@ -23,6 +23,7 @@ namespace CommandService.EventProcessor
             switch(eventType)
             {
                 case EventType.PlatformPublished:
+                    addPlatform(message);
                     break;
                 default:
                     break;
@@ -52,7 +53,6 @@ namespace CommandService.EventProcessor
                 var repo = scope.ServiceProvider.GetRequiredService<ICommandRepo>();
 
                 var platformPublishedDto = JsonSerializer.Deserialize<PlatformPublishedDto>(platformPublishedMessage);
-
                 try
                 {
                     var plat = _mapper.Map<Platform>(platformPublishedDto);
@@ -60,7 +60,7 @@ namespace CommandService.EventProcessor
                     {
                         repo.CreatePlatform(plat);
                         repo.SaveChanges();
-
+                        Console.WriteLine("--> Platform added!");
                     }
                     else 
                     {

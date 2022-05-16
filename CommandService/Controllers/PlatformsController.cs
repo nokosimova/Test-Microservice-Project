@@ -33,10 +33,6 @@ namespace CommandService.Controllers
             var platforms = _repository.GetAllPlatforms();
             return Ok(_mapper.Map<IEnumerable<PlatformReadDto>>(platforms));
         }
-
-        
-
-
     }
 
 }
